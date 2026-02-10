@@ -34,10 +34,9 @@
 
     <style>
         body {
-            overflow: hidden; /* Prevent scrollbars from floating elements */
+            overflow: hidden; 
         }
 
-        /* Glassmorphism Card */
         .glass-card {
             background: rgba(255, 255, 255, 0.45);
             backdrop-filter: blur(12px);
@@ -46,7 +45,6 @@
             box-shadow: 0 8px 32px 0 rgba(225, 29, 72, 0.15);
         }
 
-        /* Floating Background Animation */
         .floating-element {
             position: absolute;
             bottom: -50px;
@@ -58,33 +56,35 @@
         }
 
         @keyframes floatUp {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.8;
-            }
-            100% {
-                transform: translateY(-110vh) rotate(360deg);
-                opacity: 0;
-            }
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
         }
         
-        /* Smooth transitions for the No button */
-        #noBtn {
-            transition: all 0.2s ease;
-        }
+        #noBtn { transition: all 0.2s ease; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-pastel-pink via-cream to-pastel-red h-screen w-full flex items-center justify-center relative">
+
+    <audio id="bgMusic" loop>
+        <source src="Cautela_x_Jose_Vicentes.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <button id="musicToggle" class="absolute top-4 right-4 bg-white/50 hover:bg-white p-3 rounded-full shadow-md transition-all z-50 text-deep-rose" onclick="toggleMusic()">
+        <div id="iconContainer">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+            </svg>
+        </div>
+    </button>
 
     <div id="background-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
 
     <div class="glass-card rounded-3xl p-8 md:p-12 max-w-md w-full mx-4 text-center transform hover:scale-[1.02] transition-transform duration-300">
         
-        <div id="image-container" class="mb-6 rounded-2xl overflow-hidden shadow-sm border-4 border-white/50 bg-white/30 h-48 flex items-center justify-center">
-            <img src="miffy_x_snoopy.jpg" alt="Cute Bear" class="w-full h-full object-cover" id="main-image">
+        <div id="image-container" class="mb-6 rounded-2xl overflow-hidden shadow-sm border-4 border-white/50 bg-white/30 h-64 flex items-center justify-center">
+            <img src="miffy_x_snoopy.jpg" alt="Miffy and Snoopy" class="w-full h-full object-cover" id="main-image">
         </div>
 
         <h1 id="question-text" class="font-dancing text-4xl md:text-5xl text-deep-rose mb-2 drop-shadow-sm">
@@ -110,91 +110,23 @@
     </div>
 
     <script>
-        /* --- 1. Floating Background Logic --- */
+        /* --- 1. Music Player Logic --- */
+        const music = document.getElementById('bgMusic');
+        const iconContainer = document.getElementById('iconContainer');
+        let isPlaying = false;
+
+        function toggleMusic() {
+            if (isPlaying) {
+                music.pause();
+                // Change icon to Play
+                iconContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" /></svg>';
+            } else {
+                music.play();
+                // Change icon to Pause
+                iconContainer.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /></svg>';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        /* --- 2. Floating Background Logic --- */
         const icons = ['❤️', '🌸', '🌹', '💖', '💌', '🌷', '✨'];
-        const container = document.getElementById('background-container');
-
-        function createFloatingElement() {
-            const el = document.createElement('div');
-            el.classList.add('floating-element');
-            el.innerText = icons[Math.floor(Math.random() * icons.length)];
-            
-            // Randomize position and animation properties
-            el.style.left = Math.random() * 100 + 'vw';
-            el.style.animationDuration = (Math.random() * 5 + 5) + 's'; // 5s to 10s
-            el.style.fontSize = (Math.random() * 20 + 20) + 'px'; // 20px to 40px
-            
-            container.appendChild(el);
-
-            // Remove element after animation finishes
-            setTimeout(() => {
-                el.remove();
-            }, 10000);
-        }
-
-        // Create a new element every 300ms
-        setInterval(createFloatingElement, 300);
-
-
-        /* --- 2. The "No" Button Logic (Teleport) --- */
-        const noBtn = document.getElementById('noBtn');
-        const yesBtn = document.getElementById('yesBtn');
-
-        function moveButton() {
-            // Get viewport dimensions
-            const maxX = window.innerWidth - noBtn.offsetWidth - 20;
-            const maxY = window.innerHeight - noBtn.offsetHeight - 20;
-
-            const randomX = Math.random() * maxX;
-            const randomY = Math.random() * maxY;
-
-            // Apply new position
-            noBtn.style.position = 'fixed'; // Switch to fixed to move anywhere
-            noBtn.style.left = randomX + 'px';
-            noBtn.style.top = randomY + 'px';
-        }
-
-
-        /* --- 3. The "Yes" Button Logic --- */
-        function acceptProposal() {
-            // 1. Trigger Confetti
-            const duration = 3000;
-            const end = Date.now() + duration;
-
-            (function frame() {
-                confetti({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#e11d48', '#fca5a5', '#ffe4e6']
-                });
-                confetti({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#e11d48', '#fca5a5', '#ffe4e6']
-                });
-
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
-            }());
-
-            // 2. Change Text and Image
-            document.getElementById('question-text').innerText = "Yay! I can't wait! ❤️";
-            document.getElementById('question-text').classList.add('text-5xl', 'scale-110', 'transition-transform');
-            
-            // Change GIF to a "Happy" one
-            document.getElementById('main-image').src = "https://media1.tenor.com/m/M0DC1-Jt9kAAAAAC/mocha-bear-hearts.gif";
-            
-            // 3. Hide the No button and make Yes button huge or inactive
-            noBtn.style.display = 'none';
-            yesBtn.innerText = "See you soon!";
-            yesBtn.classList.remove('hover:-translate-y-1');
-            yesBtn.onclick = null; // Disable further clicks
-        }
-    </script>
-</body>
-</html>
