@@ -130,3 +130,66 @@
 
         /* --- 2. Floating Background Logic --- */
         const icons = ['❤️', '🌸', '🌹', '💖', '💌', '🌷', '✨'];
+        const container = document.getElementById('background-container');
+
+        function createFloatingElement() {
+            const el = document.createElement('div');
+            el.classList.add('floating-element');
+            el.innerText = icons[Math.floor(Math.random() * icons.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            el.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 10000);
+        }
+        setInterval(createFloatingElement, 300);
+
+        /* --- 3. The "No" Button Logic --- */
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+
+        function moveButton() {
+            const maxX = window.innerWidth - noBtn.offsetWidth - 20;
+            const maxY = window.innerHeight - noBtn.offsetHeight - 20;
+            noBtn.style.position = 'fixed'; // Switch to fixed to move anywhere
+            noBtn.style.left = Math.random() * maxX + 'px';
+            noBtn.style.top = Math.random() * maxY + 'px';
+        }
+
+        /* --- 4. The "Yes" Button Logic --- */
+        function acceptProposal() {
+            // Trigger Confetti
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5, angle: 60, spread: 55, origin: { x: 0 },
+                    colors: ['#e11d48', '#fca5a5', '#ffe4e6']
+                });
+                confetti({
+                    particleCount: 5, angle: 120, spread: 55, origin: { x: 1 },
+                    colors: ['#e11d48', '#fca5a5', '#ffe4e6']
+                });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+
+            // Update Text
+            const h1 = document.getElementById('question-text');
+            h1.innerText = "Yay! I can't wait! ❤️";
+            h1.classList.add('text-5xl', 'scale-110', 'transition-transform');
+            
+            // Note: Keeping the Miffy image, but if you want to switch to a "happy" gif, uncomment below:
+            // document.getElementById('main-image').src = "happy-gif.gif"; 
+
+            noBtn.style.display = 'none';
+            yesBtn.innerText = "See you soon!";
+            yesBtn.classList.remove('hover:-translate-y-1');
+            yesBtn.onclick = null;
+            
+            // Auto-play music if not already playing
+            if (!isPlaying) toggleMusic();
+        }
+    </script>
+</body>
+</html>
