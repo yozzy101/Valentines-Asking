@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pastel-pink': '#ffe4e6',
+                        'pastel-red': '#fca5a5',
+                        'deep-rose': '#e11d48',
+                        'cream': '#fff1f2',
+                    },
+                    fontFamily: {
+                        'dancing': ['"Dancing Script"', 'cursive'],
+                        'quicksand': ['"Quicksand"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            overflow: hidden; /* Prevent scrollbars from floating elements */
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(225, 29, 72, 0.15);
+        }
+
+        /* Floating Background Animation */
+        .floating-element {
+            position: absolute;
+            bottom: -50px;
+            font-size: 24px;
+            animation: floatUp linear infinite;
+            opacity: 0;
+            z-index: -1;
+            user-select: none;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Smooth transitions for the No button */
+        #noBtn {
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pastel-pink via-cream to-pastel-red h-screen w-full flex items-center justify-center relative">
+
+    <div id="background-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+
+    <div class="glass-card rounded-3xl p-8 md:p-12 max-w-md w-full mx-4 text-center transform hover:scale-[1.02] transition-transform duration-300">
+        
+        <div id="image-container" class="mb-6 rounded-2xl overflow-hidden shadow-sm border-4 border-white/50 bg-white/30 h-48 flex items-center justify-center">
+            <img src="https://media1.tenor.com/m/fA2FmKkS8o0AAAAC/cute-love.gif" alt="Cute Bear" class="w-full h-full object-cover" id="main-image">
+        </div>
+
+        <h1 id="question-text" class="font-dancing text-4xl md:text-5xl text-deep-rose mb-2 drop-shadow-sm">
+            Will you be my Valentine?
+        </h1>
+        <p class="font-quicksand text-gray-600 mb-8 text-lg">
+            (There's only one right answer!)
+        </p>
+
+        <div class="flex flex-col md:flex-row gap-4 justify-center items-center relative h-16">
+            
+            <button id="yesBtn" onclick="acceptProposal()" 
+                class="bg-deep-rose hover:bg-rose-600 text-white font-quicksand font-bold py-3 px-8 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-200 text-xl w-32 z-10">
+                Yes!
+            </button>
+
+            <button id="noBtn" onmouseover="moveButton()" onclick="moveButton()"
+                class="bg-white hover:bg-gray-50 text-deep-rose border-2 border-deep-rose font-quicksand font-bold py-3 px-8 rounded-full shadow-md text-xl w-32 absolute md:relative">
+                No
+            </button>
+
+        </div>
+    </div>
+
+    <script>
+        /* --- 1. Floating Background Logic --- */
+        const icons = ['❤️', '🌸', '🌹', '💖', '💌', '🌷', '✨'];
+        const container = document.getElementById('background-container');
+
+        function createFloatingElement() {
+            const el = document.createElement('div');
+            el.classList.add('floating-element');
+            el.innerText = icons[Math.floor(Math.random() * icons.length)];
+            
+            // Randomize position and animation properties
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 5 + 5) + 's'; // 5s to 10s
+            el.style.fontSize = (Math.random() * 20 + 20) + 'px'; // 20px to 40px
+            
+            container.appendChild(el);
+
+            // Remove element after animation finishes
+            setTimeout(() => {
+                el.remove();
+            }, 10000);
+        }
+
+        // Create a new element every 300ms
+        setInterval(createFloatingElement, 300);
+
+
+        /* --- 2. The "No" Button Logic (Teleport) --- */
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+
+        function moveButton() {
+            // Get viewport dimensions
+            const maxX = window.innerWidth - noBtn.offsetWidth - 20;
+            const maxY = window.innerHeight - noBtn.offsetHeight - 20;
+
+            const randomX = Math.random() * maxX;
+            const randomY = Math.random() * maxY;
+
+            // Apply new position
+            noBtn.style.position = 'fixed'; // Switch to fixed to move anywhere
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+        }
+
+
+        /* --- 3. The "Yes" Button Logic --- */
+        function acceptProposal() {
+            // 1. Trigger Confetti
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#e11d48', '#fca5a5', '#ffe4e6']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#e11d48', '#fca5a5', '#ffe4e6']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+
+            // 2. Change Text and Image
+            document.getElementById('question-text').innerText = "Yay! I can't wait! ❤️";
+            document.getElementById('question-text').classList.add('text-5xl', 'scale-110', 'transition-transform');
+            
+            // Change GIF to a "Happy" one
+            document.getElementById('main-image').src = "https://media1.tenor.com/m/M0DC1-Jt9kAAAAAC/mocha-bear-hearts.gif";
+            
+            // 3. Hide the No button and make Yes button huge or inactive
+            noBtn.style.display = 'none';
+            yesBtn.innerText = "See you soon!";
+            yesBtn.classList.remove('hover:-translate-y-1');
+            yesBtn.onclick = null; // Disable further clicks
+        }
+    </script>
+</body>
+</html>
